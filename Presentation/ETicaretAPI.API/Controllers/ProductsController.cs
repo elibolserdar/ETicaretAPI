@@ -16,16 +16,19 @@ namespace ETicaretAPI.API.Controllers
         readonly private IProductWriteRepository _productWriteRepository;
         readonly private ICustomerWriteRepository _customerWriteRepository;
         private ICustomerReadRepository _customerReadRepository;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public ProductsController(
-            IProductReadRepository productReadRepository,
-            IProductWriteRepository productWriteRepository)
-        {
-            _productReadRepository = productReadRepository;
-            _productWriteRepository = productWriteRepository;
-        }
+		public ProductsController(
+			IProductReadRepository productReadRepository,
+			IProductWriteRepository productWriteRepository,
+			IWebHostEnvironment webHostEnvironment)
+		{
+			_productReadRepository = productReadRepository;
+			_productWriteRepository = productWriteRepository;
+			_webHostEnvironment = webHostEnvironment;
+		}
 
-        [HttpGet]
+		[HttpGet]
         public async Task<IActionResult> Get([FromQuery] Pagination pagination)
         {
             var totalCount = _productReadRepository.GetAll(false).Count();
@@ -88,6 +91,30 @@ namespace ETicaretAPI.API.Controllers
         {
             await _productWriteRepository.RemoveAsync(id);
             await _productWriteRepository.SaveAsync();
+
+            return Ok();
+        }
+
+        [HttpPost("UploadFiles")]
+        public async Task<IActionResult> Upload()
+        {
+            string uploadPath = Path.Combine(_webHostEnvironment.WebRootPath, "resource/product-images");
+
+            if (!Directory.Exists(uploadPath))
+            {
+                Directory.CreateDirectory(uploadPath);
+            }
+
+            Random rand = new Random();
+            foreach (IFormFile file in Request.Form.Files)
+            {
+                string fullPath = Path.Combine(uploadPath, $"{rand.Next()}{Path.GetExtension(file.FileName)}");
+
+                using FileStream fileStream = new(fullPath, FileMode.Create, FileAccess.Write, FileShare.None, 1024*1024, false);
+
+                await file.CopyToAsync(fileStream);
+                await fileStream.FlushAsync();
+            }
 
             return Ok();
         }
