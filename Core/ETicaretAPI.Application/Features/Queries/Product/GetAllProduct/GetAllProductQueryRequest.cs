@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace ETicaretAPI.Application.Features.Queries.GetAllProduct
+namespace ETicaretAPI.Application.Features.Queries.Product.GetAllProduct
 {
     public class GetAllProductQueryRequest : IRequest<GetAllProductQueryResponse>
     {
