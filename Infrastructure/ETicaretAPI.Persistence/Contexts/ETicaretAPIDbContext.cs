@@ -1,16 +1,13 @@
 ﻿using ETicaretAPI.Domain.Entities;
 using ETicaretAPI.Domain.Entities.Common;
+using ETicaretAPI.Domain.Entities.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using File = ETicaretAPI.Domain.Entities.File;
 
 namespace ETicaretAPI.Persistence.Contexts
 {
-    public class ETicaretAPIDbContext : DbContext
+    public class ETicaretAPIDbContext : IdentityDbContext<AppUser, AppRole, string>
     {
         public ETicaretAPIDbContext(DbContextOptions options) : base(options)
         { }
@@ -24,9 +21,9 @@ namespace ETicaretAPI.Persistence.Contexts
 
         //SaveChangeAsync Interceptor
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-            {
+        {
             //ChangeTracker: Entityler üzerinden yapılan değişikliklerin ya da yeni eklenen verinin yakalanmasını sağlayan propertydir. Update opersyonlarında Track edilen verileri yakalayıp elde etmemizi sağlar
-            
+
             var dataList = ChangeTracker.Entries<BaseEntity>();
 
             foreach (var data in dataList)
